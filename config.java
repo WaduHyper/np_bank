@@ -17,11 +17,14 @@ using NoPixelDevMode
     private FiveM.UI BankMenu;
     private banks.Java banks;
     public BankMenu BtnDeposit;
+    public BankMenu BtnWithdraw;
+    public NoPixelDevModeData DirtyMoney;
     // List of the private and public codes Ending.
 
 
     public Withdraw(), Deposit() // enables deposit and withdraw in the bank only!
     {
+      # Deposit // Deposit Start
       If player.position = 'banks.Java' Then
       Deposit.enable = true
       Withdraw.enable = true
@@ -41,6 +44,28 @@ using NoPixelDevMode
       MoneyData = true, Function(MoneyData) Sync(TriggerEvent)
       When MySQLDataBase.Change Do Save.MoneyData(true) ElseDo
       Close MySQLDataBase() As New Point(0, 0) // Save new point then close.
+      # Deposit // Deposit End
+      # Withdraw // Withdraw Start
+      If player.position = 'banks.Java' Then
+      Deposit.enable = true
+      Withdraw.enable = true
+      ElseIf player.position = Not 'banks.Java' Then
+      Deposit.enable = false // Deposit will change like the other codes.
+      Withdraw.enable = false
+      End If
+      If BtnWithdraw.Click Then
+      Transfer NewGUI(withdraw) = {AMOUNT}.Save(), Function()
+      AMOUNT ToString(Function, TriggerEvent( data == 'Money' ) )
+      AddEventHandler(Money.Deposit = AddMoney(NoPixelDevModeData)) OnlyIf
+      BtnWithdraw.Click = true
+      End If
+      Function, rec -Money = @Deposit, rec +Money = @Withdraw
+      When WithdrawAmount.Selected Do DataBase.Save ToString('MoneyData')
+      MoneyData = Save.MySQLDataBase As New Function(MoneyData) // New Function
+      MoneyData = true, Function(MoneyData) Sync(TriggerEvent)
+      When MySQLDataBase.Change Do Save.MoneyData(true) ElseDo
+      Close MySQLDataBase() As New Point(0, 0) // Save new point then close.
+      # Withdraw // Withdraw End
     }
   End
       Start Resource(Function, Withdraw, Deposit) Sync( EventHander )
@@ -84,6 +109,25 @@ End
       If player.Position = Not ((Bank.Java)) Then
       BankMenu.Show = false // Disabling the bankmenu from showing.
     }
+
+    public DirtyMoney()
+    {
+      AddEventHandler(NewGUI, Function( TriggerEvent = true )).Local Player
+      --    TriggerEvent( data == 'DirtyMoney' ) = true
+      DirtyMoney.Show = chatPrint("You Have" {AMOUNT} "In Dirty Money") OnlyIf
+      Player.Chat = "/dm", Function(MySQLDataBase = MySQL-Async)
+      If Player.Chat = "/dm" Then
+      DirtyMoney.Show As Function(), chatPrint("You Have" {AMOUNT} "In Dirty Money")
+      End If
+      If <FiveM><Resource>"np_jobs"</Resource></FiveM> Do +Money Then
+      AddEventHandler( TriggerEvent( data == 'DirtyMoney' As {AMOUNT} ) )
+      DirtyMoney, rec +Money = @Dirty+, rec -Money = @Dirty-, Function(MySQLDataBase)
+      MySQLDataBase.Save As New Point(0, 0) = true
+      If TriggerEvent( data == 'SeizeDM' ).Click Then
+      Change DirtyMoney.Value = "0" Save As New {AMOUNT}, true
+      End If
+    }
+
 End
 
  // Requirments
