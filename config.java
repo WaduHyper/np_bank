@@ -19,6 +19,7 @@ using NoPixelDevMode
     public BankMenu BtnDeposit;
     public BankMenu BtnWithdraw;
     public NoPixelDevModeData DirtyMoney;
+    public NoPixelDevMode CleanDM;
     // List of the private and public codes Ending.
 
 
@@ -126,12 +127,46 @@ End
       If TriggerEvent( data == 'SeizeDM' ).Click Then
       Change DirtyMoney.Value = "0" Save As New {AMOUNT}, true
       End If
+      If Player Try Deposit.DirtyMoney Then
+      chatPrint("You can't deposit dirty money! make sure you clean to cash.")
+      AddEventHandler( NewGUI( TriggerEvent( data == 'DirtyMoney' ) ) ), Function()
+      Function(), DirtyMoney.Error = Deposit(BankMenu), ElseIf Try Deposit.DirtyMoney Then
+      BankMenu.enable = false
+      Citizen.Wait(5:seconds) // Script Waiting . . .
+      BankMenu.enable = true
     }
+  End
+
+    public CleanDM()
+    {
+      EventHandler( TriggerEvent( data == 'DirtyMoney' ) )
+      Try DirtyMoney.enable = true If true Then
+      CleanDM.enable = Citizen.Wait(UntilNextEnable)
+      End If
+      If Player.Position(522, 38, 71) Then
+      EntityCircle = true And Try
+      CleanDM = true OnlyIf Player.Position(522, 38, 71)
+      <FiveM><EntityCircle><Color>F2D002</Color></EntityCircle></FiveM>
+      screenPrint("Press [U] (By Default) To Start Cleaning Money. (2500) Each 20s")
+      screenPrint("Beware! The Cops Will Be Alerted After 3 Times!")
+      End If
+      If Player.Position(522, 38, 71) IsNot Then
+      EntityCircle = true
+      CleanDM = false
+      If Get.Key('U') When Player.Position(522, 38, 71) Then
+      CleanDM.Process = true, Function( TriggerEvent( data == 'Cleaning' ) )
+      ElseIf Cleaning.On Then Do Withdraw.{AMOUNT} = true And Do
+      DirtyMoney.RemoveMoney({AMOUNT}) = true, Function(MySQLDataBase.Save(true))
+      End If
+    }
+  End
 
 End
 
  // Requirments
 # sv_cheats 0
+# NoPixelDevModeData 1
+# NoPixelDevMode 1
 # MySQL 1 // Main config of the sql's.
 # MySQLDataBase 1
 # MySQL-Async 1
