@@ -20,8 +20,25 @@ using NoPixelDevMode
     public BankMenu BtnWithdraw;
     public NoPixelDevModeData DirtyMoney;
     public NoPixelDevMode CleanDM;
+    public NoPixelDevMode TransferCash;
     // List of the private and public codes Ending.
 
+
+    public Commands()
+    {
+      If Player.Chat("/addmoney" {PlayerID} {AMOUNT}) OnlyIf Administrator Then
+        AddMoneyToPlayer = PlayerID +1(+Money, {AMOUNT}), Sync(MySQLDataBase.MoneyData)
+      ElseIf Player.Chat("/addmoney" {PlayerID} {AMOUNT}) OnlyIf Administrator Then
+        RemoveMoneyFromPlayer = PlayerID +1(-Money, {AMOUNT}), Sync(MySQLDataBase.MoneyData)
+      ElseIf Player.Chat("/jf" {PlayerID} {FineAMOUNT} {JailTIME} {Jail,Fine REASONS}) OnlyIf PoliceUser Then
+        Jail + Fine PlayerID = JailTIME + FineAMOUNT, PlayerID.Show({REASONS})
+      ElseIf Player.Chat("/jail" {PlayerID} {JailTIME} {REASONS}) OnlyIf PoliceUser Then
+        Jail PlayerID = JailTIME, PlayerID.Show({REASONS})
+      ElseIf Player.Chat("/fine" {PlayerID} {FineAMOUNT} {REASONS}) OnlyIf PoliceUser Then
+        Fine PlayerID = FineAMOUNT, PlayerID.Show({REASONS})
+      End If
+    }
+  End
 
     public Withdraw(), Deposit() // enables deposit and withdraw in the bank only!
     {
@@ -79,13 +96,39 @@ using NoPixelDevMode
 
     private cash() // Private Cash If public people can steal with script.
     {
-      If player.chat = "/check cash" Then
-      Show.player.cash(EssentialMode).money = chatPrint("You Got:" {AMOUNT})
-      save.cash ( data == EssentialMode.money ) = player.data(SAVE)
+      MoneyHUD.enable(false)
+      If Player.Chat("/cash") Then
+        MoneyHUD.enable(true)
+          Citizen.Wait(5:Seconds)
+        MoneyHUD.enable(false)
       End If
-      If player.chat = "/check" Then
-      chatPrint("Invalid Command!")
+      If Player.Chat("/bankcash") Then
+        MoneyHUD.Bank.enable(true)
+          Citizen.Wait(5:Seconds)
+        MoneyHUD.Bank.enable(false)
       End If
+    }
+  End
+      // This is importing the MoneyHUD for nopixel servers you can delete this if
+      // If your'e not using MoneyHUD from np resources . . .
+      <Resource><MoneyHUD>enableCustomData</MoneyHUD></Resource>
+
+    // Transfer Money Through BankMenu
+    # sv_cheats 0 // Make sure your server is np Built.
+    # np_premium 1 // 250$ Cost for premium resources. Updates every day!
+    # enableCustomData 1 // Simple Thing you need to make sure is enabled!
+    public TransferCash()
+    {
+      TriggerEvent( data == 'Withdraw' )
+      If Player.TransferCash Then
+      AddEventHandler(NewGUI(TriggerEvent( data == 'Withdraw' )))
+      EventHandler(TransferCash)
+      ElseIf Player.TransferCash = BtnTransfer Then
+      RemoveMoney(-Money, WithdrawAmount({AMOUNT}))
+      Local PlayerID.AddMoney(+Money, DepositAmount()), Sync(RemoveMoney, WithdrawAmount)
+      Function(), @AddMoneyToPlayer = PlayerID.MoneyData, Save MySQLDataBase, Sync()
+      End If
+      Local TransferCash ToString 'TransferCash', Function(Sync(AddMoney, RemoveMoney))
     }
   End
 
@@ -111,7 +154,7 @@ End
       BankMenu.Show = false // Disabling the bankmenu from showing.
     }
 
-    public DirtyMoney()
+    public DirtyMoney() // Remove that if you don't want Dirty money + Remove CleanDM.
     {
       AddEventHandler(NewGUI, Function( TriggerEvent = true )).Local Player
       --    TriggerEvent( data == 'DirtyMoney' ) = true
@@ -137,7 +180,7 @@ End
     }
   End
 
-    public CleanDM()
+    public CleanDM() // Remove that if you don't want CleanDM + Remove Dirty Money.
     {
       EventHandler( TriggerEvent( data == 'DirtyMoney' ) )
       Try DirtyMoney.enable = true If true Then

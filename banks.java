@@ -8,10 +8,10 @@ using FiveM
 
     public banks()
     {
-      If position = (500, 6, 432) Else
-      position = (854, 250, 0) Else
-      position = (450, 16, 585) Else
-      position = (312, 59, 4) Then
+      If position = (500, 6, 432), {Paleto} Else
+      position = (854, 250, 0), {Square} Else
+      position = (450, 16, 585), {Los Santos Vault} Else
+      position = (312, 59, 4), {Senora Desert} Then
       save.position As New Point('bank')
       End If
       Local.Ped = bankposition(false)
