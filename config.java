@@ -36,6 +36,12 @@ using NoPixelDevMode
         Jail PlayerID = JailTIME, PlayerID.Show({REASONS})
       ElseIf Player.Chat("/fine" {PlayerID} {FineAMOUNT} {REASONS}) OnlyIf PoliceUser Then
         Fine PlayerID = FineAMOUNT, PlayerID.Show({REASONS})
+      ElseIf Player.Chat("/escort") OnlyIf PoliceUser Then
+        Player.Escort -1 PedFrom PoliceUser = true
+      ElseIf Player.Chat("/cuff") OnlyIf PoliceUser Then
+        Player.ToggleCuff -1 PedFrom PoliceUser = true, Function(ToggleCuff), Sync(PlayerID)
+          If Player.Cuffed(true) And PoliceUser.Chat("/cuff") Then
+            Player.ToggleCuff -1 PedFrom PoliceUser = false, Function(ToggleCuff), Sync(PlayerID)
       End If
     }
   End
@@ -161,7 +167,7 @@ End
       DirtyMoney.Show = chatPrint("You Have" {AMOUNT} "In Dirty Money") OnlyIf
       Player.Chat = "/dm", Function(MySQLDataBase = MySQL-Async)
       If Player.Chat = "/dm" Then
-      DirtyMoney.Show As Function(), chatPrint("You Have" {AMOUNT} "In Dirty Money")
+        DirtyMoney.Show As Function(), chatPrint("You Have" {AMOUNT} "In Dirty Money")
       End If
       If <FiveM><Resource>"np_jobs"</Resource></FiveM> Do +Money Then
       AddEventHandler( TriggerEvent( data == 'DirtyMoney' As {AMOUNT} ) )
@@ -171,7 +177,7 @@ End
       Change DirtyMoney.Value = "0" Save As New {AMOUNT}, true
       End If
       If Player Try Deposit.DirtyMoney Then
-      chatPrint("You can't deposit dirty money! make sure you clean to cash.")
+      --  chatPrint("You can't deposit dirty money! make sure you clean to cash.")
       AddEventHandler( NewGUI( TriggerEvent( data == 'DirtyMoney' ) ) ), Function()
       Function(), DirtyMoney.Error = Deposit(BankMenu), ElseIf Try Deposit.DirtyMoney Then
       BankMenu.enable = false
@@ -179,27 +185,42 @@ End
       BankMenu.enable = true
     }
   End
+          // Don't Remove this function! if removed then config will not work
+--start // Starts the string to work....
+    --
+      do { ToString
+        if (TriggerEvent( data == 'CleanDM' )) {
+          try {
+            default:
+              DirtyMoney.CleanDM = ToString
+        }
+      } while ();
+    --
+--end // Ending the string to work....
+        // Don't Remove this function! if removed then config will not work
 
     public CleanDM() // Remove that if you don't want CleanDM + Remove Dirty Money.
     {
-      EventHandler( TriggerEvent( data == 'DirtyMoney' ) )
-      Try DirtyMoney.enable = true If true Then
-      CleanDM.enable = Citizen.Wait(UntilNextEnable)
-      End If
+      AddEventHandler( TriggerEvent( data == 'DirtyMoney' ) )
+      --  EventHandler(NewGUI( CleanDM.DirtyMoney = UseFileType(".java") ))
+      CleanDM.DirtyMoney Do
+      Try DirtyMoney.enable = true Then
+        CleanDM.enable = Citizen.Wait(UntilNextEnable)
+      End Try
       If Player.Position(522, 38, 71) Then
-      EntityCircle = true And Try
-      CleanDM = true OnlyIf Player.Position(522, 38, 71)
-      <FiveM><EntityCircle><Color>F2D002</Color></EntityCircle></FiveM>
-      screenPrint("Press [U] (By Default) To Start Cleaning Money. (2500) Each 20s")
-      screenPrint("Beware! The Cops Will Be Alerted After 3 Times!")
+        EntityCircle = true And Try
+        CleanDM = true OnlyIf Player.Position(522, 38, 71)
+        <FiveM><EntityCircle><Color>F2D002</Color></EntityCircle></FiveM>
+      --  screenPrint("Press [U] (By Default) To Start Cleaning Money. (2500) Each 20s")
+      --  screenPrint("Beware! The Cops Will Be Alerted After 3 Times!")
       End If
       If Player.Position(522, 38, 71) IsNot Then
-      EntityCircle = true
-      CleanDM = false
+        EntityCircle = true
+        CleanDM = false, Sync(MySQLDataBase)
       If Get.Key('U') When Player.Position(522, 38, 71) Then
-      CleanDM.Process = true, Function( TriggerEvent( data == 'Cleaning' ) )
+        CleanDM.Process = true, Function( TriggerEvent( data == 'Cleaning' ) )
       ElseIf Cleaning.On Then Do Withdraw.{AMOUNT} = true And Do
-      DirtyMoney.RemoveMoney({AMOUNT}) = true, Function(MySQLDataBase.Save(true))
+        DirtyMoney.RemoveMoney({AMOUNT}) = true, Function(MySQLDataBase.Save(true))
       End If
     }
   End
@@ -218,7 +239,7 @@ End
 # banks.Java 1
   private banks {
     If banks.Java = Is Not Then
-    chatPrint("Error 851 File is missing [banks.java] function.")
+    --  chatPrint("Error 851 File is missing [banks.java] function.")
     else chatPrint("Everything is working perfectly fine!")
   }
 End
