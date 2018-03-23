@@ -42,6 +42,8 @@ using NoPixelDevMode
         Player.ToggleCuff -1 PedFrom PoliceUser = true, Function(ToggleCuff), Sync(PlayerID)
           If Player.Cuffed(true) And PoliceUser.Chat("/cuff") Then
             Player.ToggleCuff -1 PedFrom PoliceUser = false, Function(ToggleCuff), Sync(PlayerID)
+      ElseIf Player.Chat("/impound") OnlyIf PoliceUser, Administrator Then
+        GetPlayerCoords -1 DeleteVehicle(true), Sync(MySQLDataBase.Cars), Save
       End If
     }
   End
